@@ -41,7 +41,7 @@ export const App = () => {
 
     setContacts(contacts => [newContact, ...contacts]);
 
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    localStorage.setItem('contacts', JSON.stringify(contacts));
   };
 
   const findContacts = e => {
