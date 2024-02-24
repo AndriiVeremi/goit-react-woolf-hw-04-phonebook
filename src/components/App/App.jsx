@@ -9,15 +9,17 @@ import { ContactFilter } from '../ContactFilter/ContactFilter';
 import { Container, Title, Span, SubTitle, Text } from './App.styled';
 
 export const App = () => {
-
   const [contacts, setContacts] = useState(() => {
-    return JSON.parse(window.localStorage.getItem('contacts')) ?? '';
+    return JSON.parse(window.localStorage.getItem('contacts')) ?? [];
   });
 
   const [filter, setFilter] = useState('');
 
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
   const addContacts = data => {
-  
     const newContact = {
       id: nanoid(),
       ...data,
@@ -40,8 +42,6 @@ export const App = () => {
     }
 
     setContacts(contacts => [newContact, ...contacts]);
-
-    localStorage.setItem('contacts', JSON.stringify(contacts));
   };
 
   const findContacts = e => {
@@ -49,7 +49,7 @@ export const App = () => {
   };
 
   const deleteContacts = id => {
-      setContacts(prevState => prevState.filter(user => user.id !== id));
+    setContacts(prevState => prevState.filter(user => user.id !== id));
     Notify.success('Contact successfully deleted.');
   };
 
@@ -60,35 +60,25 @@ export const App = () => {
     );
   };
 
-  useEffect(() => {
-    window.localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  const visibleContacts = viewContacts();
 
-    const visibleContacts = viewContacts();
+  return (
+    <Container>
+      <RiContactsBookFill
+        style={{ width: '100px', height: '100px', color: '#3373e2' }}
+      />
+      <Title>
+        Phone<Span>book</Span>
+      </Title>
+      <ContactForm setContacts={addContacts} />
+      <SubTitle>Contacts List</SubTitle>
+      <ContactFilter value={filter} findContacts={findContacts} />
 
-    return (
-      <Container>
-        <RiContactsBookFill
-          style={{ width: '100px', height: '100px', color: '#3373e2' }}
-        />
-        <Title>
-          Phone<Span>book</Span>
-        </Title>
-        <ContactForm setContacts={addContacts} />
-        <SubTitle>Contacts List</SubTitle>
-        <ContactFilter
-          value={filter}
-          findContacts={findContacts}
-        />
-
-        {visibleContacts.length === 0 ? (
-          <Text>Sorry, you don't have any contacts.</Text>
-        ) : (
-          <ContactList
-            data={visibleContacts}
-            deleteContacts={deleteContacts}
-          />
-        )}
-      </Container>
-    );
-}
+      {visibleContacts.length === 0 ? (
+        <Text>Sorry, you don't have any contacts.</Text>
+      ) : (
+        <ContactList data={visibleContacts} deleteContacts={deleteContacts} />
+      )}
+    </Container>
+  );
+};
